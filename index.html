@@ -696,20 +696,6 @@
             display: none;
         }
 
-        .firebase-loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: var(--bg-color);
-            z-index: 1000;
-        }
-
         .user-info {
             display: flex;
             align-items: center;
@@ -732,42 +718,6 @@
         .user-email {
             font-size: 0.9rem;
             color: var(--text-color);
-        }
-
-        /* Sync Indicator */
-        .sync-indicator {
-            font-size: 0.8rem;
-            color: #888;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 5px;
-        }
-
-        .sync-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-
-        .sync-dot.online {
-            background-color: #06d6a0;
-        }
-
-        .sync-dot.offline {
-            background-color: #ff4757;
-        }
-
-        .sync-dot.syncing {
-            background-color: #ffd166;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
         }
 
         /* Alert */
@@ -813,7 +763,7 @@
 <body>
     <button class="theme-toggle" id="theme-toggle">🌙</button>
     
-    <div class="user-menu" id="user-menu">👤</div>
+    <div class="user-menu" id="user-menu" style="display: none;">👤</div>
     <div class="user-dropdown" id="user-dropdown">
         <div class="user-info" id="user-info">
             <div class="user-avatar" id="user-avatar">U</div>
@@ -823,14 +773,8 @@
         <div class="user-dropdown-item danger" id="delete-account-btn">ลบบัญชี</div>
     </div>
     
-    <!-- Firebase Loading Screen -->
-    <div class="firebase-loading" id="firebase-loading">
-        <div class="spinner"></div>
-        <p>กำลังโหลด...</p>
-    </div>
-    
     <!-- Auth Screen -->
-    <div id="auth-screen" style="display: none;">
+    <div id="auth-screen">
         <div class="card">
             <h1>นับวันจีบคนที่แอบชอบ</h1>
             
@@ -839,8 +783,8 @@
                 <h3>เข้าสู่ระบบ</h3>
                 
                 <div class="form-group">
-                    <label for="login-email">อีเมล</label>
-                    <input type="email" id="login-email" placeholder="กรอกอีเมลของคุณ">
+                    <label for="login-username">ชื่อผู้ใช้</label>
+                    <input type="text" id="login-username" placeholder="กรอกชื่อผู้ใช้ของคุณ">
                 </div>
                 
                 <div class="form-group">
@@ -862,8 +806,8 @@
                 <h3>ลงทะเบียนใหม่</h3>
                 
                 <div class="form-group">
-                    <label for="register-email">อีเมล</label>
-                    <input type="email" id="register-email" placeholder="กรอกอีเมลของคุณ">
+                    <label for="register-username">ชื่อผู้ใช้</label>
+                    <input type="text" id="register-username" placeholder="กรอกชื่อผู้ใช้ของคุณ">
                 </div>
                 
                 <div class="form-group">
@@ -931,11 +875,6 @@
                 <!-- Birthday countdown -->
                 <div id="birthday-countdown" style="display: none;">
                     <p>เหลืออีก <span id="days-to-birthday">0</span> วันถึงวันเกิด</p>
-                </div>
-                
-                <div class="sync-indicator">
-                    <div class="sync-dot online" id="sync-status"></div>
-                    <span id="sync-text">ข้อมูลซิงค์แล้ว</span>
                 </div>
                 
                 <button id="reset-button">เริ่มใหม่</button>
@@ -1104,38 +1043,14 @@
         สร้างด้วยความรัก ❤️
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-storage-compat.min.js"></script>
-
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD9WF8BKrvlRWo6eIcC8ApNgno7kL8uxzY",
-            authDomain: "mylovercount-c787b.firebaseapp.com",
-            projectId: "mylovercount-c787b",
-            storageBucket: "mylovercount-c787b.firebasestorage.app",
-            messagingSenderId: "444846092683",
-            appId: "1:444846092683:web:1d7e864291a2b15607bf8e",
-            measurementId: "G-ZSV78T1EZM"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-
         // DOM Elements - Auth
-        const firebaseLoading = document.getElementById('firebase-loading');
         const authScreen = document.getElementById('auth-screen');
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
-        const loginEmail = document.getElementById('login-email');
+        const loginUsername = document.getElementById('login-username');
         const loginPassword = document.getElementById('login-password');
-        const registerEmail = document.getElementById('register-email');
+        const registerUsername = document.getElementById('register-username');
         const registerPassword = document.getElementById('register-password');
         const registerConfirmPassword = document.getElementById('register-confirm-password');
         const loginButton = document.getElementById('login-button');
@@ -1155,10 +1070,6 @@
         const deleteAccountModal = document.getElementById('delete-account-modal');
         const cancelDeleteAccount = document.getElementById('cancel-delete-account');
         const confirmDeleteAccount = document.getElementById('confirm-delete-account');
-
-        // DOM Elements - Sync
-        const syncStatus = document.getElementById('sync-status');
-        const syncText = document.getElementById('sync-text');
 
         // DOM Elements - Main App
         const setupScreen = document.getElementById('setup-screen');
@@ -1222,6 +1133,12 @@
         // DOM Elements - Alert
         const alert = document.getElementById('alert');
 
+        // Data structure for users
+        let users = {};
+
+        // Current user
+        let currentUser = null;
+
         // Data structure
         let crushData = {
             name: '',
@@ -1233,12 +1150,6 @@
             songs: [],
             notes: []
         };
-
-        // User data
-        let currentUser = null;
-        let userDocRef = null;
-        let isOnline = true;
-        let isSyncing = false;
 
         // Date Ideas
         const dateIdeas = [
@@ -1346,36 +1257,8 @@
 
         // Initialize the app
         function initApp() {
-            // Initialize Firebase Auth state listener
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    // User is signed in
-                    currentUser = user;
-                    userDocRef = db.collection('users').doc(user.uid);
-                    
-                    // Update UI
-                    setupUserUI(user);
-                    
-                    // Check if user data exists
-                    checkUserData();
-                    
-                    // Hide auth screen, hide loading
-                    authScreen.style.display = 'none';
-                    firebaseLoading.style.display = 'none';
-                } else {
-                    // User is signed out
-                    currentUser = null;
-                    userDocRef = null;
-                    
-                    // Show auth screen, hide main screens
-                    authScreen.style.display = 'block';
-                    setupScreen.style.display = 'none';
-                    mainScreen.style.display = 'none';
-                    
-                    // Hide loading
-                    firebaseLoading.style.display = 'none';
-                }
-            });
+            // Load users data from localStorage
+            loadUsers();
             
             // Set today as the default date
             const today = new Date();
@@ -1385,128 +1268,125 @@
             // Initialize theme
             initTheme();
             
-            // Setup online/offline detection
-            setupOnlineStatus();
+            // Check if user is logged in
+            checkLoggedInUser();
             
             // Set up event listeners
             setupEventListeners();
         }
 
-        // Setup user UI
-        function setupUserUI(user) {
-            userAvatar.textContent = user.email.charAt(0).toUpperCase();
-            userEmail.textContent = user.email;
-            userMenu.style.display = 'block';
-        }
-
-        // Check if user data exists
-        function checkUserData() {
-            userDocRef.get().then(doc => {
-                if (doc.exists) {
-                    // User has data
-                    crushData = doc.data();
-                    
-                    // Check for required fields and initialize arrays
-                    if (!crushData.photos) crushData.photos = [];
-                    if (!crushData.memories) crushData.memories = [];
-                    if (!crushData.bucketList) crushData.bucketList = [];
-                    if (!crushData.songs) crushData.songs = [];
-                    if (!crushData.notes) crushData.notes = [];
-                    
-                    // Show main screen if user has crush data
-                    if (crushData.name && crushData.startDate) {
-                        showMainScreen();
-                        updateCounter();
-                        renderMemories();
-                        renderGallery();
-                        renderBucketList();
-                        renderSongs();
-                        renderNotes();
-                        updateBirthdayCountdown();
-                    } else {
-                        // Show setup screen
-                        setupScreen.style.display = 'block';
-                    }
-                } else {
-                    // No user data, create new document
-                    crushData = {
-                        name: '',
-                        startDate: '',
-                        birthday: '',
-                        memories: [],
-                        photos: [],
-                        bucketList: [],
-                        songs: [],
-                        notes: [],
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    
-                    userDocRef.set(crushData)
-                        .then(() => {
-                            // Show setup screen
-                            setupScreen.style.display = 'block';
-                        })
-                        .catch(error => {
-                            showAlert('error', 'เกิดข้อผิดพลาดในการสร้างข้อมูล: ' + error.message);
-                        });
-                }
-            }).catch(error => {
-                showAlert('error', 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + error.message);
-            });
-        }
-
-        // Setup online status detection
-        function setupOnlineStatus() {
-            window.addEventListener('online', () => {
-                isOnline = true;
-                syncStatus.className = 'sync-dot online';
-                syncText.textContent = 'ข้อมูลซิงค์แล้ว';
-                
-                // Sync data if needed
-                syncDataWithServer();
-            });
-            
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                syncStatus.className = 'sync-dot offline';
-                syncText.textContent = 'ออฟไลน์';
-            });
-        }
-
-        // Sync data with server
-        function syncDataWithServer() {
-            if (!isOnline || !userDocRef || isSyncing) return;
-            
-            isSyncing = true;
-            syncStatus.className = 'sync-dot syncing';
-            syncText.textContent = 'กำลังซิงค์ข้อมูล...';
-            
-            // Update timestamp
-            crushData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-            
-            userDocRef.update(crushData)
-                .then(() => {
-                    syncStatus.className = 'sync-dot online';
-                    syncText.textContent = 'ข้อมูลซิงค์แล้ว';
-                    isSyncing = false;
-                })
-                .catch(error => {
-                    syncStatus.className = 'sync-dot offline';
-                    syncText.textContent = 'ซิงค์ไม่สำเร็จ';
-                    isSyncing = false;
-                    showAlert('error', 'เกิดข้อผิดพลาดในการซิงค์ข้อมูล: ' + error.message);
-                });
-        }
-
-        // Save data to server
-        function saveData() {
-            if (isOnline && userDocRef) {
-                syncDataWithServer();
+        // Load users data from localStorage
+        function loadUsers() {
+            const savedUsers = localStorage.getItem('crushAppUsers');
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
             } else {
-                // Save to localStorage as backup
-                localStorage.setItem('crushDataBackup', JSON.stringify(crushData));
-                syncStatus.className = 'sync-dot offline';
-                syncText.textContent = 'ออฟไลน์ (สำรองข้อมูลในเครื่อง)';
+                // Create default admin user if no users exist
+                users = {
+                    'admin': {
+                        username: 'admin',
+                        password: 'admin123',
+                        crushData: null
+                    }
+                };
+                saveUsers();
+            }
+        }
+
+        // Save users data to localStorage
+        function saveUsers() {
+            localStorage.setItem('crushAppUsers', JSON.stringify(users));
+        }
+
+        // Check if user is logged in
+        function checkLoggedInUser() {
+            const loggedInUser = localStorage.getItem('crushAppCurrentUser');
+            if (loggedInUser) {
+                currentUser = loggedInUser;
+                
+                // Show user menu
+                userMenu.style.display = 'block';
+                
+                // Update user avatar and email
+                userAvatar.textContent = currentUser.charAt(0).toUpperCase();
+                userEmail.textContent = currentUser;
+                
+                // Load user data
+                loadUserData();
+            } else {
+                // Show auth screen
+                authScreen.style.display = 'block';
+                setupScreen.style.display = 'none';
+                mainScreen.style.display = 'none';
+                userMenu.style.display = 'none';
+            }
+        }
+
+        // Load user data
+        function loadUserData() {
+            if (currentUser && users[currentUser] && users[currentUser].crushData) {
+                crushData = users[currentUser].crushData;
+                
+                // Check for required fields and initialize arrays
+                if (!crushData.photos) crushData.photos = [];
+                if (!crushData.memories) crushData.memories = [];
+                if (!crushData.bucketList) crushData.bucketList = [];
+                if (!crushData.songs) crushData.songs = [];
+                if (!crushData.notes) crushData.notes = [];
+                
+                // Show main screen if user has crush data
+                if (crushData.name && crushData.startDate) {
+                    showMainScreen();
+                    updateCounter();
+                    renderMemories();
+                    renderGallery();
+                    renderBucketList();
+                    renderSongs();
+                    renderNotes();
+                    updateBirthdayCountdown();
+                } else {
+                    // Show setup screen
+                    setupScreen.style.display = 'block';
+                    mainScreen.style.display = 'none';
+                    authScreen.style.display = 'none';
+                }
+            } else {
+                // Show setup screen
+                setupScreen.style.display = 'block';
+                mainScreen.style.display = 'none';
+                authScreen.style.display = 'none';
+                
+                // Initialize empty crushData
+                crushData = {
+                    name: '',
+                    startDate: '',
+                    birthday: '',
+                    memories: [],
+                    photos: [],
+                    bucketList: [],
+                    songs: [],
+                    notes: []
+                };
+                
+                // Save empty crushData
+                saveData();
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            if (currentUser) {
+                if (!users[currentUser]) {
+                    users[currentUser] = {
+                        username: currentUser,
+                        password: '', // This should never happen in normal usage
+                        crushData: null
+                    };
+                }
+                
+                users[currentUser].crushData = crushData;
+                saveUsers();
+                showAlert('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
             }
         }
 
@@ -1514,6 +1394,7 @@
         function showMainScreen() {
             setupScreen.style.display = 'none';
             mainScreen.style.display = 'block';
+            authScreen.style.display = 'none';
             
             crushNameDisplay.textContent = crushData.name;
         }
@@ -1567,11 +1448,10 @@
                 photos: [],
                 bucketList: [],
                 songs: [],
-                notes: [],
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                notes: []
             };
             
-            // Save to server
+            // Save to localStorage
             saveData();
             
             // Update UI
@@ -1693,36 +1573,17 @@
                 // Show loading indicator
                 showAlert('info', 'กำลังอัพโหลดรูปภาพ...');
                 
-                // Upload to Firebase Storage if online
-                if (isOnline && currentUser) {
-                    const storageRef = storage.ref();
-                    const photoRef = storageRef.child(`users/${currentUser.uid}/photos/${new Date().getTime()}_${file.name}`);
-                    
-                    photoRef.put(file).then(snapshot => {
-                        return snapshot.ref.getDownloadURL();
-                    }).then(downloadURL => {
-                        if (!crushData.photos) crushData.photos = [];
-                        crushData.photos.push(downloadURL);
-                        saveData();
-                        renderGallery();
-                        showAlert('success', 'อัพโหลดรูปภาพเรียบร้อยแล้ว');
-                    }).catch(error => {
-                        showAlert('error', 'เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ: ' + error.message);
-                    });
-                } else {
-                    // Offline mode: convert to data URL
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        if (!crushData.photos) crushData.photos = [];
-                        crushData.photos.push(e.target.result);
-                        saveData();
-                        renderGallery();
-                        showAlert('success', 'บันทึกรูปภาพเรียบร้อยแล้ว (โหมดออฟไลน์)');
-                    };
-                    
-                    reader.readAsDataURL(file);
-                }
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    if (!crushData.photos) crushData.photos = [];
+                    crushData.photos.push(e.target.result);
+                    saveData();
+                    renderGallery();
+                    showAlert('success', 'บันทึกรูปภาพเรียบร้อยแล้ว');
+                };
+                
+                reader.readAsDataURL(file);
             }
         }
 
@@ -2072,6 +1933,136 @@
             }, 3000);
         }
 
+        // Login user
+        function loginUser() {
+            const username = loginUsername.value.trim();
+            const password = loginPassword.value;
+            
+            if (!username || !password) {
+                loginError.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            if (!users[username]) {
+                loginError.textContent = 'ไม่พบบัญชีผู้ใช้';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            if (users[username].password !== password) {
+                loginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            // Login successful
+            currentUser = username;
+            localStorage.setItem('crushAppCurrentUser', currentUser);
+            
+            // Clear form
+            loginUsername.value = '';
+            loginPassword.value = '';
+            loginError.style.display = 'none';
+            
+            // Show user menu
+            userMenu.style.display = 'block';
+            
+            // Update user avatar and email
+            userAvatar.textContent = currentUser.charAt(0).toUpperCase();
+            userEmail.textContent = currentUser;
+            
+            // Load user data
+            loadUserData();
+            
+            showAlert('success', 'เข้าสู่ระบบสำเร็จ');
+        }
+
+        // Register user
+        function registerUser() {
+            const username = registerUsername.value.trim();
+            const password = registerPassword.value;
+            const confirmPassword = registerConfirmPassword.value;
+            
+            if (!username || !password || !confirmPassword) {
+                registerError.textContent = 'กรุณากรอกข้อมูลให้ครบถ้วน';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                registerError.textContent = 'รหัสผ่านไม่ตรงกัน';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                registerError.textContent = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            if (users[username]) {
+                registerError.textContent = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            // Registration successful
+            users[username] = {
+                username: username,
+                password: password,
+                crushData: null
+            };
+            saveUsers();
+            
+            // Clear form
+            registerUsername.value = '';
+            registerPassword.value = '';
+            registerConfirmPassword.value = '';
+            registerError.style.display = 'none';
+            
+            // Show login form
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            
+            showAlert('success', 'ลงทะเบียนสำเร็จ กรุณาเข้าสู่ระบบ');
+        }
+
+        // Logout user
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('crushAppCurrentUser');
+            
+            // Hide user menu
+            userMenu.style.display = 'none';
+            userDropdown.classList.remove('active');
+            
+            // Show auth screen
+            authScreen.style.display = 'block';
+            setupScreen.style.display = 'none';
+            mainScreen.style.display = 'none';
+            
+            showAlert('success', 'ออกจากระบบสำเร็จ');
+        }
+
+        // Delete account
+        function deleteAccount() {
+            if (currentUser) {
+                // Delete user data
+                delete users[currentUser];
+                saveUsers();
+                
+                // Logout user
+                logoutUser();
+                
+                // Close modal
+                deleteAccountModal.style.display = 'none';
+                
+                showAlert('success', 'ลบบัญชีเรียบร้อยแล้ว');
+            }
+        }
+
         // Set up event listeners - Auth
         function setupAuthListeners() {
             // Toggle between login and register
@@ -2090,108 +2081,22 @@
             });
             
             // Login
-            loginButton.addEventListener('click', function() {
-                const email = loginEmail.value.trim();
-                const password = loginPassword.value;
-                
-                if (!email || !password) {
-                    loginError.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน';
-                    loginError.style.display = 'block';
-                    return;
-                }
-                
-                // Show loading
-                firebaseLoading.style.display = 'flex';
-                
-                auth.signInWithEmailAndPassword(email, password)
-                    .then(() => {
-                        // Login successful
-                        loginEmail.value = '';
-                        loginPassword.value = '';
-                        loginError.style.display = 'none';
-                    })
-                    .catch(error => {
-                        // Hide loading
-                        firebaseLoading.style.display = 'none';
-                        
-                        // Show error message
-                        if (error.code === 'auth/user-not-found') {
-                            loginError.textContent = 'ไม่พบบัญชีผู้ใช้';
-                        } else if (error.code === 'auth/wrong-password') {
-                            loginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
-                        } else if (error.code === 'auth/invalid-email') {
-                            loginError.textContent = 'รูปแบบอีเมลไม่ถูกต้อง';
-                        } else {
-                            loginError.textContent = error.message;
-                        }
-                        loginError.style.display = 'block';
-                    });
-            });
+            loginButton.addEventListener('click', loginUser);
             
             // Register
-            registerButton.addEventListener('click', function() {
-                const email = registerEmail.value.trim();
-                const password = registerPassword.value;
-                const confirmPassword = registerConfirmPassword.value;
-                
-                if (!email || !password || !confirmPassword) {
-                    registerError.textContent = 'กรุณากรอกข้อมูลให้ครบถ้วน';
-                    registerError.style.display = 'block';
-                    return;
-                }
-                
-                if (password !== confirmPassword) {
-                    registerError.textContent = 'รหัสผ่านไม่ตรงกัน';
-                    registerError.style.display = 'block';
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    registerError.textContent = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
-                    registerError.style.display = 'block';
-                    return;
-                }
-                
-                // Show loading
-                firebaseLoading.style.display = 'flex';
-                
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then(() => {
-                        // Registration successful
-                        registerEmail.value = '';
-                        registerPassword.value = '';
-                        registerConfirmPassword.value = '';
-                        registerError.style.display = 'none';
-                    })
-                    .catch(error => {
-                        // Hide loading
-                        firebaseLoading.style.display = 'none';
-                        
-                        // Show error message
-                        if (error.code === 'auth/email-already-in-use') {
-                            registerError.textContent = 'อีเมลนี้ถูกใช้งานแล้ว';
-                        } else if (error.code === 'auth/invalid-email') {
-                            registerError.textContent = 'รูปแบบอีเมลไม่ถูกต้อง';
-                        } else if (error.code === 'auth/weak-password') {
-                            registerError.textContent = 'รหัสผ่านไม่ปลอดภัยเพียงพอ';
-                        } else {
-                            registerError.textContent = error.message;
-                        }
-                        registerError.style.display = 'block';
-                    });
-            });
+            registerButton.addEventListener('click', registerUser);
             
             // Enter key for login
             loginPassword.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    loginButton.click();
+                    loginUser();
                 }
             });
             
             // Enter key for register
             registerConfirmPassword.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    registerButton.click();
+                    registerUser();
                 }
             });
         }
@@ -2211,13 +2116,7 @@
             });
             
             // Logout
-            logoutBtn.addEventListener('click', function() {
-                auth.signOut().then(() => {
-                    userDropdown.classList.remove('active');
-                }).catch(error => {
-                    showAlert('error', 'เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
-                });
-            });
+            logoutBtn.addEventListener('click', logoutUser);
             
             // Delete account
             deleteAccountBtn.addEventListener('click', function() {
@@ -2231,30 +2130,7 @@
             });
             
             // Confirm delete account
-            confirmDeleteAccount.addEventListener('click', function() {
-                // Show loading
-                firebaseLoading.style.display = 'flex';
-                deleteAccountModal.style.display = 'none';
-                
-                // Delete user data
-                if (userDocRef) {
-                    userDocRef.delete().then(() => {
-                        // Delete user
-                        auth.currentUser.delete().then(() => {
-                            // User deleted
-                            showAlert('success', 'ลบบัญชีเรียบร้อยแล้ว');
-                        }).catch(error => {
-                            // Hide loading
-                            firebaseLoading.style.display = 'none';
-                            showAlert('error', 'เกิดข้อผิดพลาดในการลบบัญชี: ' + error.message);
-                        });
-                    }).catch(error => {
-                        // Hide loading
-                        firebaseLoading.style.display = 'none';
-                        showAlert('error', 'เกิดข้อผิดพลาดในการลบข้อมูล: ' + error.message);
-                    });
-                }
-            });
+            confirmDeleteAccount.addEventListener('click', deleteAccount);
         }
 
         // Set up event listeners
