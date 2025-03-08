@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นับวันจีบคนที่แอบชอบ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff758c;
+            --secondary-color: #ff7eb3;
+            --accent-color: #ffaaa5;
+            --bg-color: #fff0f3;
+            --text-color: #4a4a4a;
+            --shadow-color: rgba(255, 117, 140, 0.3);
+            --card-bg: white;
+            --border-color: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px var(--shadow-color);
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+        }
+
+        #days-counter {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin: 20px 0;
+        }
+
+        .hearts {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .heart {
+            font-size: 2rem;
+            color: var(--primary-color);
+            animation: pulse 1.5s infinite;
+            margin: 0 5px;
+        }
+
+        .heart:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .heart:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .info-text {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        #crush-name-display {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .memory-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        #memory-input {
+            flex-grow: 1;
+        }
+
+        .add-btn {
+            width: auto;
+            padding: 12px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .no-items-message {
+            color: #777;
+            font-style: italic;
+            margin: 20px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            width: auto;
+        }
+
+        #cancel-reset {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: auto;
+            padding: 5px;
+            color: var(--text-color);
+        }
+
+        /* User Menu */
+        .user-menu {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: auto;
+            padding: 5px;
+            color: var(--text-color);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 50px;
+            left: 15px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            padding: 10px;
+            display: none;
+            z-index: 50;
+            min-width: 150px;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .user-dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            text-align: left;
+        }
+
+        .user-dropdown-item:hover {
+            background-color: rgba(255, 117, 140, 0.1);
+        }
+
+        .user-dropdown-item.danger {
+            color: #ff4757;
+        }
+
+        /* Dark theme */
+        body.dark-theme {
+            --bg-color: #2c2c2c;
+            --text-color: #f5f5f5;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --card-bg: #3c3c3c;
+            --border-color: #444;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .tab {
+            flex-grow: 1;
+            text-align: center;
+            padding: 12px 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background-color: rgba(255, 117, 140, 0.1);
+        }
+
+        /* Photo gallery */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #ff4757;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-item:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .gallery-add {
+            background-color: rgba(255, 117, 140, 0.1);
+            border: 2px dashed var(--primary-color);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            aspect-ratio: 1;
+        }
+
+        .gallery-add span {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 10px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        /* Date ideas */
+        .date-idea-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .date-idea-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .date-idea-desc {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .date-idea-emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Bucket list */
+        .bucket-list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .bucket-list-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .bucket-list-checkbox {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-color);
+        }
+
+        .bucket-list-text {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .bucket-list-date {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .bucket-list-completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .bucket-list-delete {
+            color: #ff4757;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 10px;
+            font-size: 1rem;
+        }
+
+        /* Songs */
+        .song-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .song-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .song-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: var(--primary-color);
+        }
+
+        .song-info {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .song-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .song-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+
+        .song-remove {
+            color: #ff4757;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1rem;
+        }
+
+        /* Notes */
+        .notes-container {
+            margin-top: 15px;
+        }
+
+        .note-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+        .note-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-content {
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: right;
+        }
+
+        .note-category {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .category-birthday {
+            background-color: #ffd166;
+        }
+
+        .category-gift {
+            background-color: #06d6a0;
+        }
+
+        .category-important {
+            background-color: #ef476f;
+        }
+
+        .category-other {
+            background-color: #118ab2;
+        }
+
+        /* Screen visibility */
+        .section {
+            display: none;
+            width: 100%;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid rgba(255, 117, 140, 0.3);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Auth Related Styles */
+        #auth-screen, #setup-screen, #main-screen {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .auth-toggle {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .auth-toggle a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-error {
+            color: #ff4757;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .firebase-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--bg-color);
+            z-index: 1000;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .user-email {
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        /* Sync Indicator */
+        .sync-indicator {
+            font-size: 0.8rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .sync-dot.online {
+            background-color: #06d6a0;
+        }
+
+        .sync-dot.offline {
+            background-color: #ff4757;
+        }
+
+        .sync-dot.syncing {
+            background-color: #ffd166;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Alert */
+        .alert {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .alert.success {
+            border-left: 5px solid #06d6a0;
+        }
+
+        .alert.error {
+            border-left: 5px solid #ff4757;
+        }
+
+        .alert.info {
+            border-left: 5px solid #118ab2;
+        }
+
+        .alert.warning {
+            border-left: 5px solid #ffd166;
+        }
+
+        .alert.show {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle">🌙</button>
+    
+    <div class="user-menu" id="user-menu">👤</div>
+    <div class="user-dropdown" id="user-dropdown">
+        <div class="user-info" id="user-info">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="user-email" id="user-email">user@example.com</div>
+        </div>
+        <div class="user-dropdown-item" id="logout-btn">ออกจากระบบ</div>
+        <div class="user-dropdown-item danger" id="delete-account-btn">ลบบัญชี</div>
+    </div>
+    
+    <!-- Firebase Loading Screen -->
+    <div class="firebase-loading" id="firebase-loading">
+        <div class="spinner"></div>
+        <p>กำลังโหลด...</p>
+    </div>
+    
+    <!-- Auth Screen -->
+    <div id="auth-screen" style="display: none;">
+        <div class="card">
+            <h1>นับวันจีบคนที่แอบชอบ</h1>
+            
+            <!-- Login Form -->
+            <div id="login-form">
+                <h3>เข้าสู่ระบบ</h3>
+                
+                <div class="form-group">
+                    <label for="login-email">อีเมล</label>
+                    <input type="email" id="login-email" placeholder="กรอกอีเมลของคุณ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">รหัสผ่าน</label>
+                    <input type="password" id="login-password" placeholder="กรอกรหัสผ่านของคุณ">
+                </div>
+                
+                <div class="auth-error" id="login-error"></div>
+                
+                <button id="login-button">เข้าสู่ระบบ</button>
+                
+                <div class="auth-toggle">
+                    ยังไม่มีบัญชี? <a id="show-register">ลงทะเบียนเลย</a>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="register-form" style="display: none;">
+                <h3>ลงทะเบียนใหม่</h3>
+                
+                <div class="form-group">
+                    <label for="register-email">อีเมล</label>
+                    <input type="email" id="register-email" placeholder="กรอกอีเมลของคุณ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-password">รหัสผ่าน</label>
+                    <input type="password" id="register-password" placeholder="กรอกรหัสผ่านของคุณ (อย่างน้อย 6 ตัวอักษร)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-confirm-password">ยืนยันรหัสผ่าน</label>
+                    <input type="password" id="register-confirm-password" placeholder="กรอกรหัสผ่านอีกครั้ง">
+                </div>
+                
+                <div class="auth-error" id="register-error"></div>
+                
+                <button id="register-button">ลงทะเบียน</button>
+                
+                <div class="auth-toggle">
+                    มีบัญชีอยู่แล้ว? <a id="show-login">เข้าสู่ระบบเลย</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Setup Screen -->
+        <div id="setup-screen" style="display: none;">
+            <div class="card">
+                <h1>นับวันจีบคนที่แอบชอบ</h1>
+                
+                <div class="form-group">
+                    <label for="crush-name">ชื่อคนที่คุณแอบชอบ</label>
+                    <input type="text" id="crush-name" placeholder="ระบุชื่อคนที่คุณแอบชอบ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="start-date">วันที่เริ่มจีบ</label>
+                    <input type="date" id="start-date">
+                    <p class="info-text">วันที่คุณเริ่มจีบหรือทำความรู้จัก</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="crush-birthday">วันเกิดคนที่คุณแอบชอบ (ถ้ามี)</label>
+                    <input type="date" id="crush-birthday">
+                </div>
+                
+                <button id="save-button">บันทึกข้อมูล</button>
+            </div>
+        </div>
+        
+        <!-- Main App Screen -->
+        <div id="main-screen" style="display: none;">
+            <div class="card">
+                <h1>นับวันจีบคนที่แอบชอบ</h1>
+                <p>คุณได้จีบ <span id="crush-name-display">คนพิเศษ</span> มาแล้ว</p>
+                
+                <div class="hearts">
+                    <div class="heart">❤️</div>
+                    <div class="heart">❤️</div>
+                    <div class="heart">❤️</div>
+                </div>
+                
+                <div id="days-counter">0</div>
+                <p>วัน</p>
+
+                <!-- Birthday countdown -->
+                <div id="birthday-countdown" style="display: none;">
+                    <p>เหลืออีก <span id="days-to-birthday">0</span> วันถึงวันเกิด</p>
+                </div>
+                
+                <div class="sync-indicator">
+                    <div class="sync-dot online" id="sync-status"></div>
+                    <span id="sync-text">ข้อมูลซิงค์แล้ว</span>
+                </div>
+                
+                <button id="reset-button">เริ่มใหม่</button>
+            </div>
+            
+            <!-- Tabs navigation -->
+            <div class="tabs">
+                <div class="tab active" data-tab="memories">ความทรงจำ</div>
+                <div class="tab" data-tab="gallery">แกลเลอรี</div>
+                <div class="tab" data-tab="bucket-list">Bucket List</div>
+                <div class="tab" data-tab="date-ideas">ไอเดียเดต</div>
+                <div class="tab" data-tab="songs">เพลง</div>
+                <div class="tab" data-tab="notes">บันทึก</div>
+            </div>
+            
+            <!-- Memories Section -->
+            <div id="memories-section" class="section active">
+                <div class="card">
+                    <h3>บันทึกความทรงจำดีๆ</h3>
+                    
+                    <div class="memory-input-container">
+                        <input type="text" id="memory-input" placeholder="เพิ่มความทรงจำดีๆ ของคุณ">
+                        <button id="add-memory-btn" class="add-btn">เพิ่ม</button>
+                    </div>
+                    
+                    <ul id="memories-list"></ul>
+                </div>
+            </div>
+            
+            <!-- Gallery Section -->
+            <div id="gallery-section" class="section">
+                <div class="card">
+                    <h3>แกลเลอรีภาพความทรงจำ</h3>
+                    
+                    <div class="gallery-container" id="gallery-container">
+                        <div class="gallery-add" id="gallery-add">
+                            <span>+</span>
+                            <p>เพิ่มรูปภาพ</p>
+                        </div>
+                    </div>
+                    <input type="file" id="file-input" accept="image/*">
+                </div>
+            </div>
+            
+            <!-- Bucket List Section -->
+            <div id="bucket-list-section" class="section">
+                <div class="card">
+                    <h3>สิ่งที่อยากทำด้วยกัน</h3>
+                    
+                    <div class="memory-input-container">
+                        <input type="text" id="bucket-input" placeholder="เพิ่มสิ่งที่อยากทำด้วยกัน">
+                        <button id="add-bucket-btn" class="add-btn">เพิ่ม</button>
+                    </div>
+                    
+                    <div id="bucket-list-container"></div>
+                </div>
+            </div>
+            
+            <!-- Date Ideas Section -->
+            <div id="date-ideas-section" class="section">
+                <div class="card">
+                    <h3>ไอเดียเดตครั้งต่อไป</h3>
+                    <p class="info-text">กดปุ่มเพื่อสุ่มไอเดียสำหรับการเดตครั้งต่อไป</p>
+                    
+                    <button id="random-date-btn">สุ่มไอเดียเดต</button>
+                    
+                    <div id="date-idea-container"></div>
+                </div>
+            </div>
+            
+            <!-- Songs Section -->
+            <div id="songs-section" class="section">
+                <div class="card">
+                    <h3>เพลงประจำคู่</h3>
+                    
+                    <div class="form-group">
+                        <label for="song-title">ชื่อเพลง</label>
+                        <input type="text" id="song-title" placeholder="ระบุชื่อเพลง">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="song-artist">ศิลปิน</label>
+                        <input type="text" id="song-artist" placeholder="ระบุชื่อศิลปิน">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="song-link">ลิงก์ (ถ้ามี)</label>
+                        <input type="text" id="song-link" placeholder="https://youtube.com/...">
+                    </div>
+                    
+                    <button id="add-song-btn">เพิ่มเพลง</button>
+                    
+                    <div id="songs-container" class="songs-container"></div>
+                </div>
+            </div>
+            
+            <!-- Notes Section -->
+            <div id="notes-section" class="section">
+                <div class="card">
+                    <h3>บันทึกเกี่ยวกับคนพิเศษ</h3>
+                    
+                    <div class="form-group">
+                        <label for="note-title">หัวข้อ</label>
+                        <input type="text" id="note-title" placeholder="หัวข้อบันทึก">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="note-content">รายละเอียด</label>
+                        <textarea id="note-content" placeholder="รายละเอียดบันทึก"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="note-category">ประเภท</label>
+                        <select id="note-category">
+                            <option value="birthday">วันเกิด</option>
+                            <option value="gift">ของขวัญ</option>
+                            <option value="important">ข้อมูลสำคัญ</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+                    
+                    <button id="add-note-btn">บันทึก</button>
+                    
+                    <div id="notes-container" class="notes-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reset Confirmation Modal -->
+    <div class="modal" id="reset-modal">
+        <div class="modal-content">
+            <h3>ยืนยันการเริ่มใหม่</h3>
+            <p>คุณแน่ใจหรือไม่ว่าต้องการเริ่มต้นใหม่? ข้อมูลทั้งหมดจะถูกลบออก</p>
+            
+            <div class="modal-buttons">
+                <button id="cancel-reset">ยกเลิก</button>
+                <button id="confirm-reset">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Account Confirmation Modal -->
+    <div class="modal" id="delete-account-modal">
+        <div class="modal-content">
+            <h3>ยืนยันการลบบัญชี</h3>
+            <p>คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี? ข้อมูลทั้งหมดจะถูกลบออกและไม่สามารถกู้คืนได้</p>
+            
+            <div class="modal-buttons">
+                <button id="cancel-delete-account">ยกเลิก</button>
+                <button id="confirm-delete-account">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lightbox for Gallery -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="">
+    </div>
+    
+    <!-- Alert -->
+    <div class="alert" id="alert"></div>
+    
+    <div class="footer">
+        สร้างด้วยความรัก ❤️
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-storage-compat.min.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9WF8BKrvlRWo6eIcC8ApNgno7kL8uxzY",
+            authDomain: "mylovercount-c787b.firebaseapp.com",
+            projectId: "mylovercount-c787b",
+            storageBucket: "mylovercount-c787b.firebasestorage.app",
+            messagingSenderId: "444846092683",
+            appId: "1:444846092683:web:1d7e864291a2b15607bf8e",
+            measurementId: "G-ZSV78T1EZM"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // DOM Elements - Auth
+        const firebaseLoading = document.getElementById('firebase-loading');
+        const authScreen = document.getElementById('auth-screen');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginEmail = document.getElementById('login-email');
+        const loginPassword = document.getElementById('login-password');
+        const registerEmail = document.getElementById('register-email');
+        const registerPassword = document.getElementById('register-password');
+        const registerConfirmPassword = document.getElementById('register-confirm-password');
+        const loginButton = document.getElementById('login-button');
+        const registerButton = document.getElementById('register-button');
+        const showLoginBtn = document.getElementById('show-login');
+        const showRegisterBtn = document.getElementById('show-register');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+
+        // DOM Elements - User
+        const userMenu = document.getElementById('user-menu');
+        const userDropdown = document.getElementById('user-dropdown');
+        const userAvatar = document.getElementById('user-avatar');
+        const userEmail = document.getElementById('user-email');
+        const logoutBtn = document.getElementById('logout-btn');
+        const deleteAccountBtn = document.getElementById('delete-account-btn');
+        const deleteAccountModal = document.getElementById('delete-account-modal');
+        const cancelDeleteAccount = document.getElementById('cancel-delete-account');
+        const confirmDeleteAccount = document.getElementById('confirm-delete-account');
+
+        // DOM Elements - Sync
+        const syncStatus = document.getElementById('sync-status');
+        const syncText = document.getElementById('sync-text');
+
+        // DOM Elements - Main App
+        const setupScreen = document.getElementById('setup-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const crushNameInput = document.getElementById('crush-name');
+        const startDateInput = document.getElementById('start-date');
+        const crushBirthdayInput = document.getElementById('crush-birthday');
+        const saveButton = document.getElementById('save-button');
+        const resetButton = document.getElementById('reset-button');
+        const daysCounter = document.getElementById('days-counter');
+        const crushNameDisplay = document.getElementById('crush-name-display');
+        const birthdayCountdown = document.getElementById('birthday-countdown');
+        const daysToBirthday = document.getElementById('days-to-birthday');
+
+        // DOM Elements - Tabs
+        const tabs = document.querySelectorAll('.tab');
+        const sections = document.querySelectorAll('.section');
+
+        // DOM Elements - Memories
+        const memoriesList = document.getElementById('memories-list');
+        const memoryInput = document.getElementById('memory-input');
+        const addMemoryBtn = document.getElementById('add-memory-btn');
+
+        // DOM Elements - Gallery
+        const galleryContainer = document.getElementById('gallery-container');
+        const galleryAdd = document.getElementById('gallery-add');
+        const fileInput = document.getElementById('file-input');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
+
+        // DOM Elements - Bucket List
+        const bucketInput = document.getElementById('bucket-input');
+        const addBucketBtn = document.getElementById('add-bucket-btn');
+        const bucketListContainer = document.getElementById('bucket-list-container');
+
+        // DOM Elements - Date Ideas
+        const randomDateBtn = document.getElementById('random-date-btn');
+        const dateIdeaContainer = document.getElementById('date-idea-container');
+
+        // DOM Elements - Songs
+        const songTitle = document.getElementById('song-title');
+        const songArtist = document.getElementById('song-artist');
+        const songLink = document.getElementById('song-link');
+        const addSongBtn = document.getElementById('add-song-btn');
+        const songsContainer = document.getElementById('songs-container');
+
+        // DOM Elements - Notes
+        const noteTitle = document.getElementById('note-title');
+        const noteContent = document.getElementById('note-content');
+        const noteCategory = document.getElementById('note-category');
+        const addNoteBtn = document.getElementById('add-note-btn');
+        const notesContainer = document.getElementById('notes-container');
+
+        // DOM Elements - Modal
+        const resetModal = document.getElementById('reset-modal');
+        const cancelResetBtn = document.getElementById('cancel-reset');
+        const confirmResetBtn = document.getElementById('confirm-reset');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        // DOM Elements - Alert
+        const alert = document.getElementById('alert');
+
+        // Data structure
+        let crushData = {
+            name: '',
+            startDate: '',
+            birthday: '',
+            memories: [],
+            photos: [],
+            bucketList: [],
+            songs: [],
+            notes: []
+        };
+
+        // User data
+        let currentUser = null;
+        let userDocRef = null;
+        let isOnline = true;
+        let isSyncing = false;
+
+        // Date Ideas
+        const dateIdeas = [
+            {
+                title: "เดินชมธรรมชาติ",
+                description: "ไปเดินเล่นในสวนสาธารณะ ชมวิวธรรมชาติสวยๆ หรือปีนเขาเบาๆ ด้วยกัน",
+                emoji: "🌳"
+            },
+            {
+                title: "มื้อเย็นแสนพิเศษ",
+                description: "ทำอาหารพิเศษที่บ้าน หรือพาไปร้านอาหารที่อยากลองมานาน",
+                emoji: "🍽️"
+            },
+            {
+                title: "ปิกนิก",
+                description: "เตรียมอาหารและเครื่องดื่ม แล้วไปปิกนิกในสวนหรือริมทะเล",
+                emoji: "🧺"
+            },
+            {
+                title: "ท่องเที่ยวพิพิธภัณฑ์หรือนิทรรศการ",
+                description: "พาไปชมพิพิธภัณฑ์หรือนิทรรศการศิลปะที่น่าสนใจ",
+                emoji: "🏛️"
+            },
+            {
+                title: "ดูหนังที่โรงภาพยนตร์",
+                description: "ดูหนังเรื่องใหม่ที่น่าสนใจด้วยกัน พร้อมป๊อปคอร์นและเครื่องดื่ม",
+                emoji: "🎬"
+            },
+            {
+                title: "จิบกาแฟที่ร้านใหม่",
+                description: "พาไปร้านกาแฟเก๋ๆ ที่เพิ่งเปิดใหม่หรือยังไม่เคยไปด้วยกัน",
+                emoji: "☕"
+            },
+            {
+                title: "เล่นเกมบอร์ดหรือการ์ด",
+                description: "ไปร้านบอร์ดเกม หรือซื้อเกมมาเล่นด้วยกันที่บ้าน",
+                emoji: "🎲"
+            },
+            {
+                title: "ไปคอนเสิร์ตหรือการแสดงดนตรี",
+                description: "พาไปดูคอนเสิร์ตของศิลปินที่ชอบ หรือการแสดงดนตรีสดๆ",
+                emoji: "🎵"
+            },
+            {
+                title: "ไปชมตลาดนัด",
+                description: "พาเดินเล่นที่ตลาดนัดท้องถิ่น ตลาดนัดกลางคืน หรือตลาดน้ำ",
+                emoji: "🛍️"
+            },
+            {
+                title: "ทำกิจกรรมศิลปะด้วยกัน",
+                description: "ไปเวิร์คช็อปเพนท์รูป ปั้นดินเผา หรือทำงานศิลปะอื่นๆ ด้วยกัน",
+                emoji: "🎨"
+            },
+            {
+                title: "ปลูกต้นไม้ด้วยกัน",
+                description: "ซื้อต้นไม้มาปลูกด้วยกัน ดูแลต้นไม้ให้เติบโตเหมือนความรัก",
+                emoji: "🌱"
+            },
+            {
+                title: "ออกไปขี่จักรยาน",
+                description: "ขี่จักรยานเที่ยวในเส้นทางที่สวยงาม หรือสำรวจพื้นที่ใหม่ๆ",
+                emoji: "🚲"
+            },
+            {
+                title: "ล่องเรือ",
+                description: "ล่องเรือในแม่น้ำหรือทะเลสาบใกล้ๆ เพื่อพักผ่อนและชมวิว",
+                emoji: "⛵"
+            },
+            {
+                title: "ชมพระอาทิตย์ตกหรือพระอาทิตย์ขึ้น",
+                description: "หาจุดชมวิวสวยๆ เพื่อดูพระอาทิตย์ตกหรือพระอาทิตย์ขึ้นด้วยกัน",
+                emoji: "🌅"
+            },
+            {
+                title: "ไปสวนสนุก",
+                description: "สนุกกับเครื่องเล่นต่างๆ ในสวนสนุก และถ่ายรูปเก็บความทรงจำ",
+                emoji: "🎡"
+            },
+            {
+                title: "เล่นกีฬาด้วยกัน",
+                description: "ชวนไปเล่นกีฬาที่ทั้งคู่ชอบ เช่น แบดมินตัน เทนนิส หรือว่ายน้ำ",
+                emoji: "🏸"
+            },
+            {
+                title: "ดูดาวตอนกลางคืน",
+                description: "หาพื้นที่เงียบสงบเพื่อนอนดูดาวและพูดคุยเรื่องความฝัน",
+                emoji: "✨"
+            },
+            {
+                title: "ทำขนมหรืออาหารด้วยกัน",
+                description: "ลองทำเมนูที่ไม่เคยทำมาก่อน หรือทำของหวานที่ทั้งคู่ชอบ",
+                emoji: "🧁"
+            },
+            {
+                title: "ดูละครเวที",
+                description: "พาไปชมละครเวที การแสดงโอเปร่า หรือการแสดงตลก",
+                emoji: "🎭"
+            },
+            {
+                title: "ไปเที่ยวต่างเมืองสั้นๆ",
+                description: "เที่ยวเมืองใกล้ๆ แบบไปเช้าเย็นกลับ หรือค้างคืนหนึ่ง",
+                emoji: "🏞️"
+            }
+        ];
+
+        // Initialize the app
+        function initApp() {
+            // Initialize Firebase Auth state listener
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // User is signed in
+                    currentUser = user;
+                    userDocRef = db.collection('users').doc(user.uid);
+                    
+                    // Update UI
+                    setupUserUI(user);
+                    
+                    // Check if user data exists
+                    checkUserData();
+                    
+                    // Hide auth screen, hide loading
+                    authScreen.style.display = 'none';
+                    firebaseLoading.style.display = 'none';
+                } else {
+                    // User is signed out
+                    currentUser = null;
+                    userDocRef = null;
+                    
+                    // Show auth screen, hide main screens
+                    authScreen.style.display = 'block';
+                    setupScreen.style.display = 'none';
+                    mainScreen.style.display = 'none';
+                    
+                    // Hide loading
+                    firebaseLoading.style.display = 'none';
+                }
+            });
+            
+            // Set today as the default date
+            const today = new Date();
+            const formattedDate = today.toISOString().substr(0, 10);
+            startDateInput.value = formattedDate;
+            
+            // Initialize theme
+            initTheme();
+            
+            // Setup online/offline detection
+            setupOnlineStatus();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Setup user UI
+        function setupUserUI(user) {
+            userAvatar.textContent = user.email.charAt(0).toUpperCase();
+            userEmail.textContent = user.email;
+            userMenu.style.display = 'block';
+        }
+
+        // Check if user data exists
+        function checkUserData() {
+            userDocRef.get().then(doc => {
+                if (doc.exists) {
+                    // User has data
+                    crushData = doc.data();
+                    
+                    // Check for required fields and initialize arrays
+                    if (!crushData.photos) crushData.photos = [];
+                    if (!crushData.memories) crushData.memories = [];
+                    if (!crushData.bucketList) crushData.bucketList = [];
+                    if (!crushData.songs) crushData.songs = [];
+                    if (!crushData.notes) crushData.notes = [];
+                    
+                    // Show main screen if user has crush data
+                    if (crushData.name && crushData.startDate) {
+                        showMainScreen();
+                        updateCounter();
+                        renderMemories();
+                        renderGallery();
+                        renderBucketList();
+                        renderSongs();
+                        renderNotes();
+                        updateBirthdayCountdown();
+                    } else {
+                        // Show setup screen
+                        setupScreen.style.display = 'block';
+                    }
+                } else {
+                    // No user data, create new document
+                    crushData = {
+                        name: '',
+                        startDate: '',
+                        birthday: '',
+                        memories: [],
+                        photos: [],
+                        bucketList: [],
+                        songs: [],
+                        notes: [],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    userDocRef.set(crushData)
+                        .then(() => {
+                            // Show setup screen
+                            setupScreen.style.display = 'block';
+                        })
+                        .catch(error => {
+                            showAlert('error', 'เกิดข้อผิดพลาดในการสร้างข้อมูล: ' + error.message);
+                        });
+                }
+            }).catch(error => {
+                showAlert('error', 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + error.message);
+            });
+        }
+
+        // Setup online status detection
+        function setupOnlineStatus() {
+            window.addEventListener('online', () => {
+                isOnline = true;
+                syncStatus.className = 'sync-dot online';
+                syncText.textContent = 'ข้อมูลซิงค์แล้ว';
+                
+                // Sync data if needed
+                syncDataWithServer();
+            });
+            
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                syncStatus.className = 'sync-dot offline';
+                syncText.textContent = 'ออฟไลน์';
+            });
+        }
+
+        // Sync data with server
+        function syncDataWithServer() {
+            if (!isOnline || !userDocRef || isSyncing) return;
+            
+            isSyncing = true;
+            syncStatus.className = 'sync-dot syncing';
+            syncText.textContent = 'กำลังซิงค์ข้อมูล...';
+            
+            // Update timestamp
+            crushData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            
+            userDocRef.update(crushData)
+                .then(() => {
+                    syncStatus.className = 'sync-dot online';
+                    syncText.textContent = 'ข้อมูลซิงค์แล้ว';
+                    isSyncing = false;
+                })
+                .catch(error => {
+                    syncStatus.className = 'sync-dot offline';
+                    syncText.textContent = 'ซิงค์ไม่สำเร็จ';
+                    isSyncing = false;
+                    showAlert('error', 'เกิดข้อผิดพลาดในการซิงค์ข้อมูล: ' + error.message);
+                });
+        }
+
+        // Save data to server
+        function saveData() {
+            if (isOnline && userDocRef) {
+                syncDataWithServer();
+            } else {
+                // Save to localStorage as backup
+                localStorage.setItem('crushDataBackup', JSON.stringify(crushData));
+                syncStatus.className = 'sync-dot offline';
+                syncText.textContent = 'ออฟไลน์ (สำรองข้อมูลในเครื่อง)';
+            }
+        }
+
+        // Show main screen
+        function showMainScreen() {
+            setupScreen.style.display = 'none';
+            mainScreen.style.display = 'block';
+            
+            crushNameDisplay.textContent = crushData.name;
+        }
+
+        // Update the days counter
+        function updateCounter() {
+            const startDate = new Date(crushData.startDate);
+            const today = new Date();
+            
+            // Calculate difference in milliseconds
+            const diffTime = Math.abs(today - startDate);
+            // Convert to days
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            daysCounter.textContent = diffDays;
+        }
+
+        // Update birthday countdown
+        function updateBirthdayCountdown() {
+            if (!crushData.birthday) {
+                birthdayCountdown.style.display = 'none';
+                return;
+            }
+            
+            const today = new Date();
+            let birthday = new Date(crushData.birthday);
+            
+            // Set birthday to this year
+            birthday.setFullYear(today.getFullYear());
+            
+            // If birthday already passed this year, set to next year
+            if (today > birthday) {
+                birthday.setFullYear(today.getFullYear() + 1);
+            }
+            
+            // Calculate days until birthday
+            const diffTime = birthday - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            daysToBirthday.textContent = diffDays;
+            birthdayCountdown.style.display = 'block';
+        }
+
+        // Reset the app
+        function resetApp() {
+            crushData = {
+                name: '',
+                startDate: '',
+                birthday: '',
+                memories: [],
+                photos: [],
+                bucketList: [],
+                songs: [],
+                notes: [],
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            // Save to server
+            saveData();
+            
+            // Update UI
+            setupScreen.style.display = 'block';
+            mainScreen.style.display = 'none';
+            
+            // Reset input fields
+            crushNameInput.value = '';
+            const today = new Date();
+            const formattedDate = today.toISOString().substr(0, 10);
+            startDateInput.value = formattedDate;
+            crushBirthdayInput.value = '';
+            
+            // Close the modal
+            resetModal.style.display = 'none';
+            
+            showAlert('success', 'รีเซ็ตข้อมูลเรียบร้อยแล้ว');
+        }
+
+        // Render memories list
+        function renderMemories() {
+            memoriesList.innerHTML = '';
+            
+            if (!crushData.memories || crushData.memories.length === 0) {
+                memoriesList.innerHTML = '<li class="no-items-message">ยังไม่มีความทรงจำที่บันทึกไว้</li>';
+                return;
+            }
+            
+            crushData.memories.forEach((memory, index) => {
+                const li = document.createElement('li');
+                li.textContent = memory;
+                
+                // Add delete button for each memory
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '❌';
+                deleteBtn.style.background = 'none';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.style.padding = '0';
+                deleteBtn.style.fontSize = '0.8rem';
+                
+                deleteBtn.onclick = function() {
+                    crushData.memories.splice(index, 1);
+                    saveData();
+                    renderMemories();
+                };
+                
+                li.appendChild(deleteBtn);
+                memoriesList.appendChild(li);
+            });
+        }
+
+        // Add a new memory
+        function addMemory() {
+            const memory = memoryInput.value.trim();
+            
+            if (memory) {
+                if (!crushData.memories) crushData.memories = [];
+                crushData.memories.push(memory);
+                saveData();
+                memoryInput.value = '';
+                renderMemories();
+                showAlert('success', 'เพิ่มความทรงจำเรียบร้อยแล้ว');
+            }
+        }
+
+        // Render photo gallery
+        function renderGallery() {
+            // Check if galleryContainer exists
+            if (!galleryContainer) return;
+            
+            // Check if crushData.photos is an array
+            if (!Array.isArray(crushData.photos)) {
+                crushData.photos = [];
+            }
+            
+            // Clear gallery except the add button
+            const items = galleryContainer.querySelectorAll('.gallery-item');
+            if (items && items.length > 0) {
+                items.forEach(item => item.remove());
+            }
+            
+            // Add photos
+            crushData.photos.forEach((photo, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                
+                const img = document.createElement('img');
+                img.src = photo;
+                img.alt = `Photo ${index + 1}`;
+                img.onclick = function() {
+                    lightboxImg.src = photo;
+                    lightbox.style.display = 'flex';
+                };
+                
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    crushData.photos.splice(index, 1);
+                    saveData();
+                    renderGallery();
+                    showAlert('success', 'ลบรูปภาพเรียบร้อยแล้ว');
+                };
+                
+                item.appendChild(img);
+                item.appendChild(deleteBtn);
+                galleryContainer.insertBefore(item, galleryAdd);
+            });
+        }
+
+        // Add a new photo
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            
+            if (file && file.type.startsWith('image/')) {
+                // Show loading indicator
+                showAlert('info', 'กำลังอัพโหลดรูปภาพ...');
+                
+                // Upload to Firebase Storage if online
+                if (isOnline && currentUser) {
+                    const storageRef = storage.ref();
+                    const photoRef = storageRef.child(`users/${currentUser.uid}/photos/${new Date().getTime()}_${file.name}`);
+                    
+                    photoRef.put(file).then(snapshot => {
+                        return snapshot.ref.getDownloadURL();
+                    }).then(downloadURL => {
+                        if (!crushData.photos) crushData.photos = [];
+                        crushData.photos.push(downloadURL);
+                        saveData();
+                        renderGallery();
+                        showAlert('success', 'อัพโหลดรูปภาพเรียบร้อยแล้ว');
+                    }).catch(error => {
+                        showAlert('error', 'เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ: ' + error.message);
+                    });
+                } else {
+                    // Offline mode: convert to data URL
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        if (!crushData.photos) crushData.photos = [];
+                        crushData.photos.push(e.target.result);
+                        saveData();
+                        renderGallery();
+                        showAlert('success', 'บันทึกรูปภาพเรียบร้อยแล้ว (โหมดออฟไลน์)');
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        // Render bucket list
+        function renderBucketList() {
+            bucketListContainer.innerHTML = '';
+            
+            if (!crushData.bucketList || crushData.bucketList.length === 0) {
+                bucketListContainer.innerHTML = '<p class="no-items-message">ยังไม่มีรายการที่บันทึกไว้</p>';
+                return;
+            }
+            
+            crushData.bucketList.forEach((item, index) => {
+                const bucketItem = document.createElement('div');
+                bucketItem.className = 'bucket-list-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'bucket-list-checkbox';
+                checkbox.checked = item.completed;
+                checkbox.onchange = function() {
+                    crushData.bucketList[index].completed = checkbox.checked;
+                    if (checkbox.checked) {
+                        crushData.bucketList[index].completedDate = new Date().toISOString();
+                    } else {
+                        crushData.bucketList[index].completedDate = null;
+                    }
+                    saveData();
+                    renderBucketList();
+                };
+                
+                const textDiv = document.createElement('div');
+                textDiv.className = 'bucket-list-text';
+                if (item.completed) {
+                    textDiv.classList.add('bucket-list-completed');
+                }
+                
+                const text = document.createElement('div');
+                text.textContent = item.text;
+                
+                const date = document.createElement('div');
+                date.className = 'bucket-list-date';
+                date.textContent = item.completed ? 
+                    `ทำสำเร็จเมื่อ ${formatDate(item.completedDate)}` : 
+                    `เพิ่มเมื่อ ${formatDate(item.addedDate)}`;
+                
+                textDiv.appendChild(text);
+                textDiv.appendChild(date);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'bucket-list-delete';
+                deleteBtn.textContent = '×';
+                deleteBtn.onclick = function() {
+                    crushData.bucketList.splice(index, 1);
+                    saveData();
+                    renderBucketList();
+                    showAlert('success', 'ลบรายการเรียบร้อยแล้ว');
+                };
+                
+                bucketItem.appendChild(checkbox);
+                bucketItem.appendChild(textDiv);
+                bucketItem.appendChild(deleteBtn);
+                
+                bucketListContainer.appendChild(bucketItem);
+            });
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'ไม่ระบุ';
+            
+            const date = new Date(dateString);
+            return date.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Add a new bucket list item
+        function addBucketItem() {
+            const text = bucketInput.value.trim();
+            
+            if (text) {
+                if (!crushData.bucketList) crushData.bucketList = [];
+                crushData.bucketList.push({
+                    text: text,
+                    completed: false,
+                    addedDate: new Date().toISOString(),
+                    completedDate: null
+                });
+                saveData();
+                bucketInput.value = '';
+                renderBucketList();
+                showAlert('success', 'เพิ่มรายการเรียบร้อยแล้ว');
+            }
+        }
+
+        // Get random date idea
+        function getRandomDateIdea() {
+            dateIdeaContainer.innerHTML = '';
+            
+            // Show loading spinner
+            const spinner = document.createElement('div');
+            spinner.className = 'spinner';
+            dateIdeaContainer.appendChild(spinner);
+            
+            // Simulate loading
+            setTimeout(() => {
+                // Remove spinner
+                dateIdeaContainer.innerHTML = '';
+                
+                // Get random date idea
+                const randomIndex = Math.floor(Math.random() * dateIdeas.length);
+                const idea = dateIdeas[randomIndex];
+                
+                // Create date idea card
+                const card = document.createElement('div');
+                card.className = 'date-idea-card';
+                
+                const emoji = document.createElement('div');
+                emoji.className = 'date-idea-emoji';
+                emoji.textContent = idea.emoji;
+                
+                const title = document.createElement('div');
+                title.className = 'date-idea-title';
+                title.textContent = idea.title;
+                
+                const desc = document.createElement('div');
+                desc.className = 'date-idea-desc';
+                desc.textContent = idea.description;
+                
+                card.appendChild(emoji);
+                card.appendChild(title);
+                card.appendChild(desc);
+                
+                dateIdeaContainer.appendChild(card);
+            }, 500);
+        }
+
+        // Render songs
+        function renderSongs() {
+            songsContainer.innerHTML = '';
+            
+            if (!crushData.songs || crushData.songs.length === 0) {
+                songsContainer.innerHTML = '<p class="no-items-message">ยังไม่มีเพลงที่บันทึกไว้</p>';
+                return;
+            }
+            
+            crushData.songs.forEach((song, index) => {
+                const songCard = document.createElement('div');
+                songCard.className = 'song-card';
+                
+                const icon = document.createElement('div');
+                icon.className = 'song-icon';
+                icon.textContent = '🎵';
+                
+                const info = document.createElement('div');
+                info.className = 'song-info';
+                
+                const title = document.createElement('div');
+                title.className = 'song-title';
+                title.textContent = song.title;
+                
+                const artist = document.createElement('div');
+                artist.className = 'song-artist';
+                artist.textContent = song.artist;
+                
+                info.appendChild(title);
+                info.appendChild(artist);
+                
+                songCard.appendChild(icon);
+                songCard.appendChild(info);
+                
+                // Add link if provided
+                if (song.link) {
+                    const link = document.createElement('a');
+                    link.href = song.link;
+                    link.className = 'song-link';
+                    link.target = '_blank';
+                    link.textContent = '🔗';
+                    songCard.appendChild(link);
+                }
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'song-remove';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = function() {
+                    crushData.songs.splice(index, 1);
+                    saveData();
+                    renderSongs();
+                    showAlert('success', 'ลบเพลงเรียบร้อยแล้ว');
+                };
+                
+                songCard.appendChild(removeBtn);
+                songsContainer.appendChild(songCard);
+            });
+        }
+
+        // Add a new song
+        function addSong() {
+            const title = songTitle.value.trim();
+            const artist = songArtist.value.trim();
+            const link = songLink.value.trim();
+            
+            if (title && artist) {
+                if (!crushData.songs) crushData.songs = [];
+                crushData.songs.push({
+                    title: title,
+                    artist: artist,
+                    link: link,
+                    addedDate: new Date().toISOString()
+                });
+                saveData();
+                
+                // Clear form
+                songTitle.value = '';
+                songArtist.value = '';
+                songLink.value = '';
+                
+                renderSongs();
+                showAlert('success', 'เพิ่มเพลงเรียบร้อยแล้ว');
+            }
+        }
+
+        // Render notes
+        function renderNotes() {
+            notesContainer.innerHTML = '';
+            
+            if (!crushData.notes || crushData.notes.length === 0) {
+                notesContainer.innerHTML = '<p class="no-items-message">ยังไม่มีบันทึกที่บันทึกไว้</p>';
+                return;
+            }
+            
+            crushData.notes.forEach((note, index) => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'note-card';
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'note-title';
+                
+                const titleText = document.createElement('span');
+                titleText.textContent = note.title;
+                
+                const category = document.createElement('span');
+                category.className = `note-category category-${note.category}`;
+                
+                switch (note.category) {
+                    case 'birthday':
+                        category.textContent = '🎂 วันเกิด';
+                        break;
+                    case 'gift':
+                        category.textContent = '🎁 ของขวัญ';
+                        break;
+                    case 'important':
+                        category.textContent = '⭐ สำคัญ';
+                        break;
+                    default:
+                        category.textContent = '📝 อื่นๆ';
+                }
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'song-remove';
+                deleteBtn.textContent = '×';
+                deleteBtn.onclick = function() {
+                    crushData.notes.splice(index, 1);
+                    saveData();
+                    renderNotes();
+                    showAlert('success', 'ลบบันทึกเรียบร้อยแล้ว');
+                };
+                
+                titleDiv.appendChild(titleText);
+                titleDiv.appendChild(deleteBtn);
+                
+                const content = document.createElement('div');
+                content.className = 'note-content';
+                content.textContent = note.content;
+                
+                const date = document.createElement('div');
+                date.className = 'note-date';
+                date.textContent = `บันทึกเมื่อ ${formatDate(note.addedDate)}`;
+                
+                noteCard.appendChild(titleDiv);
+                noteCard.appendChild(category);
+                noteCard.appendChild(content);
+                noteCard.appendChild(date);
+                
+                notesContainer.appendChild(noteCard);
+            });
+        }
+
+        // Add a new note
+        function addNote() {
+            const title = noteTitle.value.trim();
+            const content = noteContent.value.trim();
+            const category = noteCategory.value;
+            
+            if (title && content) {
+                if (!crushData.notes) crushData.notes = [];
+                crushData.notes.push({
+                    title: title,
+                    content: content,
+                    category: category,
+                    addedDate: new Date().toISOString()
+                });
+                saveData();
+                
+                // Clear form
+                noteTitle.value = '';
+                noteContent.value = '';
+                noteCategory.value = 'other';
+                
+                renderNotes();
+                showAlert('success', 'เพิ่มบันทึกเรียบร้อยแล้ว');
+            }
+        }
+
+        // Initialize theme
+        function initTheme() {
+            // Set light theme as default
+            localStorage.setItem('theme', 'light');
+            document.body.classList.remove('dark-theme');
+            themeToggle.textContent = '🌙';
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            if (document.body.classList.contains('dark-theme')) {
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        }
+
+        // Show alert
+        function showAlert(type, message) {
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            alert.classList.add('show');
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 3000);
+        }
+
+        // Set up event listeners - Auth
+        function setupAuthListeners() {
+            // Toggle between login and register
+            showLoginBtn.addEventListener('click', function() {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                loginError.style.display = 'none';
+                registerError.style.display = 'none';
+            });
+            
+            showRegisterBtn.addEventListener('click', function() {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                loginError.style.display = 'none';
+                registerError.style.display = 'none';
+            });
+            
+            // Login
+            loginButton.addEventListener('click', function() {
+                const email = loginEmail.value.trim();
+                const password = loginPassword.value;
+                
+                if (!email || !password) {
+                    loginError.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน';
+                    loginError.style.display = 'block';
+                    return;
+                }
+                
+                // Show loading
+                firebaseLoading.style.display = 'flex';
+                
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        // Login successful
+                        loginEmail.value = '';
+                        loginPassword.value = '';
+                        loginError.style.display = 'none';
+                    })
+                    .catch(error => {
+                        // Hide loading
+                        firebaseLoading.style.display = 'none';
+                        
+                        // Show error message
+                        if (error.code === 'auth/user-not-found') {
+                            loginError.textContent = 'ไม่พบบัญชีผู้ใช้';
+                        } else if (error.code === 'auth/wrong-password') {
+                            loginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
+                        } else if (error.code === 'auth/invalid-email') {
+                            loginError.textContent = 'รูปแบบอีเมลไม่ถูกต้อง';
+                        } else {
+                            loginError.textContent = error.message;
+                        }
+                        loginError.style.display = 'block';
+                    });
+            });
+            
+            // Register
+            registerButton.addEventListener('click', function() {
+                const email = registerEmail.value.trim();
+                const password = registerPassword.value;
+                const confirmPassword = registerConfirmPassword.value;
+                
+                if (!email || !password || !confirmPassword) {
+                    registerError.textContent = 'กรุณากรอกข้อมูลให้ครบถ้วน';
+                    registerError.style.display = 'block';
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    registerError.textContent = 'รหัสผ่านไม่ตรงกัน';
+                    registerError.style.display = 'block';
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    registerError.textContent = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+                    registerError.style.display = 'block';
+                    return;
+                }
+                
+                // Show loading
+                firebaseLoading.style.display = 'flex';
+                
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(() => {
+                        // Registration successful
+                        registerEmail.value = '';
+                        registerPassword.value = '';
+                        registerConfirmPassword.value = '';
+                        registerError.style.display = 'none';
+                    })
+                    .catch(error => {
+                        // Hide loading
+                        firebaseLoading.style.display = 'none';
+                        
+                        // Show error message
+                        if (error.code === 'auth/email-already-in-use') {
+                            registerError.textContent = 'อีเมลนี้ถูกใช้งานแล้ว';
+                        } else if (error.code === 'auth/invalid-email') {
+                            registerError.textContent = 'รูปแบบอีเมลไม่ถูกต้อง';
+                        } else if (error.code === 'auth/weak-password') {
+                            registerError.textContent = 'รหัสผ่านไม่ปลอดภัยเพียงพอ';
+                        } else {
+                            registerError.textContent = error.message;
+                        }
+                        registerError.style.display = 'block';
+                    });
+            });
+            
+            // Enter key for login
+            loginPassword.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginButton.click();
+                }
+            });
+            
+            // Enter key for register
+            registerConfirmPassword.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    registerButton.click();
+                }
+            });
+        }
+
+        // Set up event listeners - User
+        function setupUserListeners() {
+            // User menu
+            userMenu.addEventListener('click', function() {
+                userDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userMenu.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', function() {
+                auth.signOut().then(() => {
+                    userDropdown.classList.remove('active');
+                }).catch(error => {
+                    showAlert('error', 'เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+                });
+            });
+            
+            // Delete account
+            deleteAccountBtn.addEventListener('click', function() {
+                deleteAccountModal.style.display = 'flex';
+                userDropdown.classList.remove('active');
+            });
+            
+            // Cancel delete account
+            cancelDeleteAccount.addEventListener('click', function() {
+                deleteAccountModal.style.display = 'none';
+            });
+            
+            // Confirm delete account
+            confirmDeleteAccount.addEventListener('click', function() {
+                // Show loading
+                firebaseLoading.style.display = 'flex';
+                deleteAccountModal.style.display = 'none';
+                
+                // Delete user data
+                if (userDocRef) {
+                    userDocRef.delete().then(() => {
+                        // Delete user
+                        auth.currentUser.delete().then(() => {
+                            // User deleted
+                            showAlert('success', 'ลบบัญชีเรียบร้อยแล้ว');
+                        }).catch(error => {
+                            // Hide loading
+                            firebaseLoading.style.display = 'none';
+                            showAlert('error', 'เกิดข้อผิดพลาดในการลบบัญชี: ' + error.message);
+                        });
+                    }).catch(error => {
+                        // Hide loading
+                        firebaseLoading.style.display = 'none';
+                        showAlert('error', 'เกิดข้อผิดพลาดในการลบข้อมูล: ' + error.message);
+                    });
+                }
+            });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Authentication
+            setupAuthListeners();
+            
+            // User management
+            setupUserListeners();
+            
+            // Save button
+            saveButton.addEventListener('click', function() {
+                const name = crushNameInput.value.trim();
+                const date = startDateInput.value;
+                const birthday = crushBirthdayInput.value;
+                
+                if (name && date) {
+                    crushData.name = name;
+                    crushData.startDate = date;
+                    crushData.birthday = birthday;
+                    
+                    saveData();
+                    showMainScreen();
+                    updateCounter();
+                    updateBirthdayCountdown();
+                    showAlert('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
+                } else {
+                    showAlert('error', 'กรุณากรอกชื่อและวันที่เริ่มต้น');
+                }
+            });
+            
+            // Reset button
+            resetButton.addEventListener('click', function() {
+                resetModal.style.display = 'flex';
+            });
+            
+            // Cancel reset
+            cancelResetBtn.addEventListener('click', function() {
+                resetModal.style.display = 'none';
+            });
+            
+            // Confirm reset
+            confirmResetBtn.addEventListener('click', resetApp);
+            
+            // Tab navigation
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    sections.forEach(section => section.classList.remove('active'));
+                    // Show section corresponding to clicked tab
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(`${tabName}-section`).classList.add('active');
+                });
+            });
+            
+            // Add memory
+            addMemoryBtn.addEventListener('click', addMemory);
+            memoryInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addMemory();
+                }
+            });
+            
+            // Gallery
+            galleryAdd.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            lightboxClose.addEventListener('click', function() {
+                lightbox.style.display = 'none';
+            });
+            
+            // Close lightbox when clicking outside the image
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    lightbox.style.display = 'none';
+                }
+            });
+            
+            // Bucket List
+            addBucketBtn.addEventListener('click', addBucketItem);
+            bucketInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addBucketItem();
+                }
+            });
+            
+            // Date Ideas
+            randomDateBtn.addEventListener('click', getRandomDateIdea);
+            
+            // Songs
+            addSongBtn.addEventListener('click', addSong);
+            
+            // Notes
+            addNoteBtn.addEventListener('click', addNote);
+            
+            // Theme toggle
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === resetModal) {
+                    resetModal.style.display = 'none';
+                }
+                if (e.target === deleteAccountModal) {
+                    deleteAccountModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
